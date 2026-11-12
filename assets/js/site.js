@@ -70,19 +70,22 @@ requestAnimationFrame(frame);
 
 /* ================= visuels en chevrons ================= */
 const scenes=[];
-const visIO=new IntersectionObserver(es=>es.forEach(e=>{const s=e.target.__scene;if(s){s.vis=e.isIntersecting;if(s.vis)draw(s,performance.now())}}),{rootMargin:"60px"});
+/* Un visuel ne se redessine que s'il bouge : apparition, survol, ou vague (live). Sinon il est fige (0 calcul). */
+const visIO=new IntersectionObserver(es=>es.forEach(e=>{const s=e.target.__scene;if(!s)return;s.vis=e.isIntersecting;
+  if(s.vis){if(!s.seen){s.seen=true;s.t0=performance.now()}s.idle=false;draw(s,performance.now())}}),{rootMargin:"40px"});
 function chevron(cv,word,opts={}){
-  const s={cv,word,cell:opts.cell||12,t0:performance.now(),vis:false,mx:-1e4,my:-1e4,tmx:-1e4,tmy:-1e4};
+  const s={cv,word,cell:opts.cell||12,live:opts.live!==false,hov:false,seen:false,t0:performance.now(),vis:false,mx:-1e4,my:-1e4,tmx:-1e4,tmy:-1e4};
   cv.__scene=s;scenes.push(s);visIO.observe(cv);size(s);
   const host=opts.host||cv.parentElement;
   if(fine){
-    host.addEventListener("pointermove",e=>{const r=cv.getBoundingClientRect();s.tmx=e.clientX-r.left;s.tmy=e.clientY-r.top;if(s.mx<-1e3){s.mx=s.tmx;s.my=s.tmy}});
-    host.addEventListener("pointerleave",()=>{s.tmx=s.tmy=-1e4});
+    host.addEventListener("pointerenter",()=>{s.hov=true;s.idle=false});
+    host.addEventListener("pointermove",e=>{const r=cv.getBoundingClientRect();s.tmx=e.clientX-r.left;s.tmy=e.clientY-r.top;if(s.mx<-1e3){s.mx=s.tmx;s.my=s.tmy}s.idle=false});
+    host.addEventListener("pointerleave",()=>{s.hov=false;s.tmx=s.tmy=-1e4});
   }
   return s;
 }
 function size(s){
-  const r=s.cv.getBoundingClientRect(),dpr=Math.min(devicePixelRatio||1,1.5);
+  const r=s.cv.getBoundingClientRect(),dpr=Math.min(devicePixelRatio||1,1.25);
   if(!r.width||!r.height)return;
   s.w=r.width;s.h=r.height;s.cv.width=Math.round(r.width*dpr);s.cv.height=Math.round(r.height*dpr);
   s.ctx=s.cv.getContext("2d");s.ctx.setTransform(dpr,0,0,dpr,0,0);
@@ -105,9 +108,9 @@ function size(s){
 const NB=5;
 function draw(s,now){
   const {ctx,cc,ch,cols,rows,map}=s;if(!ctx)return;
-  const anim=APP.motion,t=(now-s.t0)/1000;
+  const anim=APP.motion&&(s.live||s.hov),t=(now-s.t0)/1000;
   ctx.fillStyle="#0e121a";ctx.fillRect(0,0,s.w,s.h);
-  const scan=anim?Math.min(rows+3,t*rows*1.6):rows+3;
+  const scan=APP.motion&&s.seen?Math.min(rows+3,t*rows*1.6):rows+3;
   s.mx+=(s.tmx-s.mx)*.3;s.my+=(s.tmy-s.my)*.3;
   const R=Math.max(70,s.w*.14),R2=R*R;
   const acc=[];for(let b=0;b<NB;b++)acc.push(new Path2D());
@@ -131,7 +134,7 @@ function draw(s,now){
   ctx.strokeStyle="rgba(242,242,239,.15)";ctx.stroke(dim);
   ctx.strokeStyle="#f2f2ef";ctx.stroke(white);
   ctx.strokeStyle="#ffd2bd";ctx.lineWidth=1.6;ctx.stroke(hot);
-  s.idle=!anim&&scan>=rows+3&&s.tmx<-1e3&&Math.abs(s.mx)>1e3;
+  s.idle=!anim&&scan>=rows+3&&s.tmx<-1e3&&s.mx<-1e3;
 }
 APP.slow.add(now=>{for(const s of scenes){if(s.vis&&!s.idle)draw(s,now)}});
 APP.chevron=chevron;
@@ -193,7 +196,7 @@ mBtn.addEventListener("click",()=>setMotion(!APP.motion));
 const ICON_ARROW='<svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M4 12L12 4M5 4h7v7"/></svg>';
 
 // bandeau
-const mq=$("#marquee");if(mq){const h=S.MARQ.map(w=>`<span>${w}</span>`).join("");mq.innerHTML=h+h}
+$$(".marquee .track").forEach(mq=>{const words=mq.dataset.words?mq.dataset.words.split("|"):S.MARQ;const h=words.map(w=>`<span>${w}</span>`).join("");mq.innerHTML=h+h+h});
 
 // competences
 const skillsEl=$("#skills");
@@ -224,7 +227,7 @@ if(pg){
     b.innerHTML=`<canvas></canvas><span class="shade"></span><div class="top"><span>${L(p.kind)}</span><b>0${i+1}</b></div><p class="desc">${L(p.d)}</p>
     <div class="label"><span class="pill">${L(p.t)} <em>${p.stack[0]}</em></span><span class="round" aria-hidden="true">${ICON_ARROW}</span></div>`;
     b.addEventListener("click",()=>openModal(i));
-    pg.appendChild(b);chevron(b.querySelector("canvas"),p.word,{cell:13,host:b});
+    pg.appendChild(b);chevron(b.querySelector("canvas"),p.word,{cell:13,host:b,live:false});
   });
   document.body.insertAdjacentHTML("beforeend",`<div class="modal" id="modal" aria-hidden="true"><div class="bg" data-close></div>
   <div class="box" role="dialog" aria-modal="true" aria-labelledby="mTitle"><div class="head"><canvas></canvas><button class="round close" data-close aria-label="Fermer"><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M3 3l10 10M13 3L3 13"/></svg></button></div><div class="content" id="mContent"></div></div></div>`);
@@ -413,6 +416,32 @@ addEventListener("keydown",e=>{
   if((e.key==="t"||e.key==="T"||e.key==="`")&&!e.ctrlKey&&!e.metaKey&&!e.altKey&&!/INPUT|TEXTAREA/.test(tag)&&!term.classList.contains("open")&&!$("#tuner")){e.preventDefault();openTerm()}
 });
 APP.openTerm=openTerm;
+
+/* ================= EFFETS v4 ================= */
+/* --- inclinaison 3D des cartes (souris uniquement) --- */
+if(fine){
+  $$(".proj,.ex,.pa").forEach(el=>{
+    el.classList.add("tilt");let raf=0,ev=null;
+    el.addEventListener("pointermove",e=>{if(!APP.motion)return;ev=e;if(raf)return;raf=requestAnimationFrame(()=>{raf=0;const r=el.getBoundingClientRect(),x=(ev.clientX-r.left)/r.width-.5,y=(ev.clientY-r.top)/r.height-.5;
+      el.classList.add("tilting");el.style.transform=`perspective(1000px) rotateY(${x*7}deg) rotateX(${-y*7}deg) translateY(-4px)`})});
+    el.addEventListener("pointerleave",()=>{el.classList.remove("tilting");el.style.transform=""});
+  });
+}
+
+/* --- titre des projets qui se decode au survol --- */
+$$(".proj").forEach(b=>b.addEventListener("pointerenter",()=>{const p=b.querySelector(".label .pill");if(p)scramble(p)}));
+
+/* --- clic sur un visuel : il se redessine en balayage --- */
+$$("#skillScreen,.contact .r").forEach(h=>h.addEventListener("click",()=>{const cv=h.querySelector("canvas");const s=cv&&cv.__scene;if(!s||!APP.motion)return;
+  s.t0=performance.now();s.idle=false;const box=h.closest(".screen,.contact");box.classList.remove("flash");void box.offsetWidth;box.classList.add("flash")}));
+
+/* --- retour en haut avec anneau de progression --- */
+document.body.insertAdjacentHTML("beforeend",`<a class="totop" href="#top" aria-label="${root.lang==="en"?"Back to top":"Haut de page"}"><svg class="ring" viewBox="0 0 44 44" aria-hidden="true"><circle cx="22" cy="22" r="20.5" stroke-dasharray="128.8" stroke-dashoffset="128.8"/></svg><svg class="arr" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><path d="M8 14V2M3 7l5-5 5 5"/></svg></a>`);
+const totop=$(".totop"),ringC=$(".totop circle");
+totop.addEventListener("click",e=>{e.preventDefault();scrollTo({top:0,behavior:APP.motion?"smooth":"auto"})});
+let tt=false;
+const updTop=()=>{tt=false;const max=document.documentElement.scrollHeight-innerHeight,k=max>0?scrollY/max:0;ringC.style.strokeDashoffset=128.8*(1-k);totop.classList.toggle("on",scrollY>innerHeight*.6)};
+addEventListener("scroll",()=>{if(!tt){tt=true;requestAnimationFrame(updTop)}},{passive:true});updTop();
 
 /* ================= init ================= */
 $$(".reveal,.st:not(.hero-st)").forEach(el=>io.observe(el));

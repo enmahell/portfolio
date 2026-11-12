@@ -165,7 +165,7 @@ html.still *,html.still *::before,html.still *::after{animation:none!important}
 .marquee span{font-family:"Martian Wide";font-weight:700;font-size:clamp(32px,5.6vw,78px);letter-spacing:-.03em;line-height:1;padding-right:.5em;display:inline-flex;align-items:center;gap:.5em}
 .marquee span:nth-child(even){color:transparent;-webkit-text-stroke:1px rgba(242,242,239,.4)}
 .marquee span::after{content:"";width:.22em;height:.22em;border-radius:50%;background:var(--acc)}
-@keyframes mq{to{transform:translateX(-50%)}}
+@keyframes mq{to{transform:translateX(-33.3333%)}}
 
 /* cartes d'exploration (accueil) */
 .explore{display:grid;grid-template-columns:repeat(2,1fr);gap:clamp(12px,1.6vw,20px)}
@@ -462,3 +462,49 @@ html.still .pa.reveal img{clip-path:none}
 
 .hero-card .bar>span:first-child{min-width:0;overflow:hidden;white-space:nowrap;margin-right:12px}
 .ui-bl .term-btn{color:var(--acc);font-weight:700}
+
+/* =================================================================
+   EFFETS (v4)
+   ================================================================= */
+/* inclinaison 3D des cartes */
+.tilt{transition:transform .6s cubic-bezier(.16,1,.3,1),box-shadow .3s;transform-style:preserve-3d}
+.tilt.tilting{transition:transform .12s linear,box-shadow .3s}
+
+/* bouton retour en haut avec anneau de progression */
+.totop{position:fixed;right:clamp(12px,2.2vw,30px);bottom:calc(clamp(12px,2.2vw,26px) + 52px);z-index:50;width:44px;height:44px;border-radius:50%;background:var(--bg-2);box-shadow:inset 0 0 0 1px var(--line);display:grid;place-items:center;color:var(--fg);opacity:0;transform:translateY(10px) scale(.9);pointer-events:none;transition:opacity .3s,transform .4s var(--ease),background .25s}
+.totop.on{opacity:1;transform:none;pointer-events:auto}
+.totop:hover{background:var(--acc)}
+.totop svg.ring{position:absolute;inset:0;width:100%;height:100%;transform:rotate(-90deg)}
+.totop svg.ring circle{fill:none;stroke:var(--acc);stroke-width:2;stroke-linecap:round}
+.totop:hover svg.ring circle{stroke:#fff}
+.totop .arr{width:14px;height:14px;position:relative}
+
+/* surlignage qui se dessine sous les mots importants */
+.tl-row ul li strong,.state strong,.modal ul li strong{background:linear-gradient(var(--acc),var(--acc)) left 100%/0 2px no-repeat;transition:background-size .9s cubic-bezier(.76,0,.24,1)}
+.tl-row.in ul li strong{background-size:100% 2px}
+.tl-row.in ul li:nth-child(2) strong{transition-delay:.15s}
+.tl-row.in ul li:nth-child(3) strong{transition-delay:.3s}
+.tl-row.in ul li:nth-child(4) strong{transition-delay:.45s}
+.hero-st.in~.state strong,.hero-card .state.lit strong{background-size:100% 2px}
+.modal.open ul li strong{background-size:100% 2px;transition-delay:.35s}
+
+/* bandeau sur les pages internes */
+.marquee.thin{margin-top:clamp(50px,7vw,90px)}
+.marquee.thin span{font-size:clamp(26px,4vw,56px)}
+.marquee.rev .track{animation-direction:reverse}
+
+/* clic sur un visuel : flash */
+.flash{animation:flash .5s ease-out}
+@keyframes flash{0%{box-shadow:0 0 0 1px var(--acc),0 0 60px rgba(251,94,40,.45)}100%{box-shadow:0 0 0 1px var(--line)}}
+
+/* puces de certifs : brillance au survol */
+.certs .pill{position:relative;overflow:hidden}
+.certs .pill::after{content:"";position:absolute;top:0;bottom:0;left:-60%;width:40%;background:linear-gradient(100deg,transparent,rgba(255,255,255,.25),transparent);transform:skewX(-20deg);transition:left .6s var(--ease)}
+.certs .pill:hover::after{left:130%}
+
+/* numeros "avenir" qui se remplissent */
+.fut .n{background:linear-gradient(var(--acc),var(--acc)) left bottom/100% 0 no-repeat;-webkit-background-clip:text;background-clip:text;transition:background-size .7s var(--ease)}
+.fut>div:hover .n{background-size:100% 100%;color:transparent}
+
+@media (max-width:760px){.totop{bottom:calc(clamp(12px,2.2vw,26px) + 50px)}}
+@media (prefers-reduced-motion:reduce){.tilt{transform:none!important}}
