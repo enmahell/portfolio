@@ -36,7 +36,7 @@ document.body.insertAdjacentHTML("afterbegin",`
   ${PAGES.map((p,i)=>`<a href="${p.href}"${cur(p)}><small>0${i+1}</small>${L(p.t)}</a>`).join("")}
 </nav>`);
 document.body.insertAdjacentHTML("beforeend",`
-<footer><span>&copy; 2026 Bilal Charni</span>${L(T("Marseille, France. Fait main, sans framework.","Marseille, France. Handmade, no framework."))}<a href="#top" style="color:var(--fg-2)">${L(T("Haut de page ↑","Back to top ↑"))}</a></footer>
+<footer><span>&copy; 2026 Bilal Charni</span><span>Marseille, France</span><a href="#top" style="color:var(--fg-2)">${L(T("Haut de page ↑","Back to top ↑"))}</a></footer>
 <div class="ui-bl">
   <button class="lang" data-lang="fr">FR</button><button class="lang" data-lang="en">EN</button>
   <span class="sep"></span>
