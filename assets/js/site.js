@@ -44,8 +44,9 @@ document.body.insertAdjacentHTML("beforeend",`
 </div>
 <div class="ui-br">
   <a href="mailto:bilalcharni31@gmail.com"><span class="dot"></span>${L(T("Écrire","Write"))}</a>
-  <a href="https://www.linkedin.com/in/bilal-charni-7b0b63357/" target="_blank" rel="noopener"><span class="dot"></span>LinkedIn</a>
+  <a href="https://www.linkedin.com/in/bilal-charni-7b0b63357/" target="_blank" rel="noopener" aria-label="LinkedIn"><span class="dot"></span><span class="lk-long">LinkedIn</span><span class="lk-short">in</span></a>
 </div>
+<div class="dockfade" aria-hidden="true"></div>
 <div class="toast pill" id="toast"></div>`);
 $("footer a").addEventListener("click",e=>{e.preventDefault();scrollTo({top:0,behavior:APP.motion?"smooth":"auto"})});
 
@@ -161,7 +162,7 @@ $$(".st").forEach(splitText);
 const io=new IntersectionObserver(es=>es.forEach(e=>{if(!e.isIntersecting)return;const t=e.target;t.classList.add("in");
   const v=t.querySelector("[data-count]");if(v)countUp(v);io.unobserve(t)}),{rootMargin:"0px 0px -8% 0px"});
 APP.observe=el=>io.observe(el);
-function countUp(el){const n=+el.dataset.count;if(!APP.motion){el.textContent=n;return}const t0=performance.now();(function s(){const k=Math.min(1,(performance.now()-t0)/1300);el.textContent=Math.round(n*(1-Math.pow(1-k,4)));if(k<1)requestAnimationFrame(s)})()}
+function countUp(el){const n=+el.dataset.count;if(!APP.motion||el.dataset.done){el.textContent=n;return}el.dataset.done="1";const t0=performance.now();(function s(){const k=Math.min(1,(performance.now()-t0)/1300);el.textContent=Math.round(n*(1-Math.pow(1-k,4)));if(k<1)requestAnimationFrame(s)})()}
 
 /* ================= curseur + boutons aimantes ================= */
 const mouse={x:-100,y:-100};APP.mouse=mouse;
@@ -189,7 +190,7 @@ addEventListener("scroll",()=>{if(ticking)return;ticking=true;requestAnimationFr
 function setLang(l){root.lang=l;$$(".ui-bl .lang").forEach(b=>b.classList.toggle("on",b.dataset.lang===l));store.set("lang",l);APP.redraw()}
 $$(".ui-bl .lang").forEach(b=>b.addEventListener("click",()=>setLang(b.dataset.lang)));
 const mBtn=$("#motionBtn");
-function setMotion(on){APP.motion=on;mBtn.classList.toggle("on",on);mBtn.setAttribute("aria-pressed",on);root.classList.toggle("still",!on);store.set("motion",on?"1":"0");APP.redraw();APP.onMotion&&APP.onMotion(on)}
+function setMotion(on){APP.motion=on;mBtn.classList.toggle("on",on);mBtn.setAttribute("aria-pressed",on);root.classList.toggle("still",!on);store.set("motion",on?"1":"0");APP.redraw();if(!on)$$("[data-count]").forEach(v=>v.textContent=v.dataset.count);APP.onMotion&&APP.onMotion(on)}
 mBtn.addEventListener("click",()=>setMotion(!APP.motion));
 
 /* ================= contenu par page ================= */

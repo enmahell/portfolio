@@ -508,3 +508,83 @@ html.still .pa.reveal img{clip-path:none}
 
 @media (max-width:760px){.totop{bottom:calc(clamp(12px,2.2vw,26px) + 50px)}}
 @media (prefers-reduced-motion:reduce){.tilt{transform:none!important}}
+
+/* =================================================================
+   MOBILE (v5) : ecrans tactiles et petits ecrans
+   ================================================================= */
+.lk-short{display:none}
+.pass-hint{display:none}
+.dockfade{display:none}
+@media (max-width:860px){
+  header.top{padding:12px var(--gut);background:rgba(9,12,18,.94);box-shadow:0 1px 0 var(--line)}
+  .brand{padding:8px 0}
+  .menu-btn{height:40px}
+  .page-hero{padding-top:118px}
+}
+@media (max-width:760px){
+  /* barre du bas : fond degrade pour ne pas melanger avec le contenu */
+  .dockfade{display:block;position:fixed;left:0;right:0;bottom:0;height:86px;z-index:45;pointer-events:none;background:linear-gradient(rgba(9,12,18,0),rgba(9,12,18,.92) 60%)}
+  .ui-bl button{height:34px}
+  .ui-br a{height:42px}
+  footer{padding-bottom:110px}
+
+  /* carte d'accueil */
+  .hero-card .bar{font-size:11px;margin-bottom:18px}
+  .hero-card .bar b>span{display:none}
+  .hero-card .bar .lights{margin-right:10px}
+  .hero-card h1{font-size:clamp(28px,8.6vw,40px)}
+  .hero-card p{font-size:14.5px}
+  .hero-card .foot .grp .pill{flex:1;justify-content:center}
+
+  /* cartes projets : visuel en haut, texte dessous (plus rien n'est cache) */
+  .proj{aspect-ratio:auto;display:flex;flex-direction:column}
+  .proj canvas{position:relative;inset:auto;height:190px;flex:none}
+  .proj .shade{display:none}
+  .proj .desc{position:static;opacity:1;transform:none;padding:16px 18px 0;max-width:none;color:var(--fg-2)}
+  .proj .label{position:static;padding:14px 14px 14px 18px;pointer-events:auto}
+
+  /* passions : carrousel a faire glisser */
+  .pass{display:flex;overflow-x:auto;gap:12px;scroll-snap-type:x mandatory;margin:0 calc(var(--gut) * -1);padding:0 var(--gut) 8px;scrollbar-width:none;-webkit-overflow-scrolling:touch}
+  .pass::-webkit-scrollbar{display:none}
+  .pa{flex:0 0 78%;scroll-snap-align:center;aspect-ratio:4/4.6}
+  .pass-hint{display:flex}
+
+  /* contact */
+  .contact{min-height:0}
+  .contact .r{min-height:0;height:210px}
+  .contact dl{grid-template-columns:52px 1fr;gap:10px 14px;font-size:13.5px}
+  .contact dd{min-width:0;overflow-wrap:anywhere}
+  .contact .acts .pill{flex:1;justify-content:center}
+
+  /* modale projet et terminal */
+  .modal{padding:8px}
+  .modal .box{max-height:calc(100svh - 16px)}
+  .modal .head{height:140px}
+  .modal .nav .pill{flex:1;justify-content:center;white-space:normal;height:auto;min-height:40px;padding:8px 14px;text-align:center}
+  .term{padding:8px}
+  .term .win{height:calc(100svh - 16px)}
+  .term input{font-size:16px}
+  .term .out{font-size:12.5px;padding:14px}
+
+  /* titres et espacements */
+  section.sec{padding-top:72px}
+  .sec-h{margin-bottom:24px}
+  .next{margin-top:80px}
+  .next .round{width:52px;height:52px}
+  .tl-row{padding:24px 0}
+  .stats .v{font-size:40px}
+}
+@media (max-width:400px){
+  .lk-long{display:none}
+  .lk-short{display:inline;font-weight:700}
+  .ui-bl button{padding:0 9px}
+  .ui-br a{padding:0 14px}
+}
+.pass-hint{align-items:center;gap:8px;font-size:12px;color:var(--fg-3);margin:-10px 0 14px}
+.pass-hint i{width:24px;height:1px;background:var(--acc);display:inline-block;animation:hint 1.6s ease-in-out infinite}
+@keyframes hint{50%{transform:translateX(8px)}}
+/* pas de survol sur ecran tactile : on fige les effets de survol */
+@media (hover:none){
+  .proj:hover,.ex:hover{transform:none}
+  .pa:hover img{transform:none}
+}
